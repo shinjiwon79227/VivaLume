@@ -1,6 +1,8 @@
 package com.sjw.vivalume
 
+import WiseSayingFragment
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
@@ -17,6 +19,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import com.sjw.vivalume.R
 import com.sjw.vivalume.databinding.ActivityMainBinding
+import java.util.Calendar
 
 class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
@@ -484,20 +487,29 @@ class MainActivity : AppCompatActivity() {
             .commit()
     }
 
+    @SuppressLint("ScheduleExactAlarm")
     private fun setupAlarm() {
         val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(this, NotificationReceiver::class.java)
-        val pendingIntent =
-            PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
-
-        // 1시간마다 알림을 보내도록 설정
-        // 1시간: 60 * 60 * 1000L
-        val intervalMillis = 5 * 1000L // 테스트: 5초
-        alarmManager.setInexactRepeating(
-            AlarmManager.ELAPSED_REALTIME_WAKEUP,
-            SystemClock.elapsedRealtime() + intervalMillis,
-            intervalMillis,
-            pendingIntent
+        val pendingIntent = PendingIntent.getBroadcast(
+            this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
+
+        // 기본적으로 오후 12시에 알람을 설정
+        val calendar = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, 12) // 오후 12시
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+
+            // 현재 시간이 오후 12시보다 이전이라면, 오늘 알람을 설정
+            // 그 외에는 다음 날로 설정
+            if (before(Calendar.getInstance())) {
+                add(Calendar.DAY_OF_MONTH, 1)
+            }
+        }
+
+        // 알람 설정
+        alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent)
     }
+
 }
