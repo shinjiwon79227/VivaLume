@@ -69,7 +69,7 @@ class MusicFragment : Fragment() {
         }
 
         // 지정된 검색어로 유튜브 검색 결과에서 랜덤으로 비디오 링크 추출
-        fetchRandomVideoLinkWithAPI("AIzaSyC5XYZu_3EX1jqoTFcBy6LmtUWt2_aBJ3A", "힐링 명상 음악")
+        fetchRandomVideoLinkWithAPI("YOUR_API_KEY", "힐링 명상 음악")
 
         return binding.root
     }
